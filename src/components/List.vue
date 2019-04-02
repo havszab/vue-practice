@@ -1,17 +1,17 @@
 <template>
   <div>
     <div>{{title}}</div>
-    <button @click="isAdding = true" v-if="!isAdding" class="btn-success">+</button>
+    <button @click="isAdding = true" v-if="!isAdding" class="btn btn-success">+</button>
     <div v-if="this.isAdding" class="form-field">
       <div><span class="fa fa-apple-alt"/><input type="text" v-model='form.name' placeholder="Product name" required></div>
       <div><span class="fa fa-boxes"/><input type="number" step="1" v-model="form.quantity" placeholder="Quantity" required></div>
       <div><span class="fa fa-inbox"/><input type="text" v-model="form.unit" placeholder="Unit"></div>
-      <div><span class="fa fa-money-bill-alt"/><input type="number" v-model="form.price" placeholder="Total price"></div>
+      <div><span class="fa fa-money-bill-alt"/><input type="number" v-model="form.price" placeholder="Item price"></div>
       <div><span class="fa fa-edit"/><input v-model="form.description" placeholder="Description"/></div>
     </div>
     <div v-if="this.isAdding">
-      <button @click="saveItem" class="btn-success">Save</button>
-      <button @click="isAdding = false" class="btn-danger">Cancel</button>
+      <button @click="saveItem" class="btn btn-success">Save</button>
+      <button @click="isAdding = false" class="btn btn-danger">Cancel</button>
     </div>
     <div class="table-wrapper">
     <table>
@@ -20,9 +20,9 @@
       <th>Price/unit</th>
       <th>Quantity</th>
       <th>Status</th>
-      <th>Total price</th>
+      <th>Item price</th>
       <tbody>
-      <template v-for="product in products">
+      <template v-for="product in acquisition.products">
         <tr class="row" v-bind:key="product.id">
           <td><button>+</button></td>
           <td>{{ product.productCategory.productName }}</td>
@@ -42,6 +42,12 @@
       </tbody>
     </table>
     </div>
+    <div>
+      <div>Operations</div>
+      <button class="btn">Finish acquisition</button>
+      <button class="btn">Add product type to list</button>
+      <button class="btn">Add unit type to list</button>
+    </div>
   </div>
 </template>
 
@@ -54,7 +60,7 @@ export default {
   data () {
     return {
       title: 'CURRENT ACQUISITION',
-      products: [],
+      acquisition: {},
       currency: 'Ft',
       isAdding: false,
       sum: this.getSumPrice,
@@ -69,10 +75,12 @@ export default {
   },
   methods: {
     async getList  () {
-      let response = await this.$http.get(this.$rootUrl + 'products', {'Access-Control-Allow-Origin': '*'})
-      this.products = response.data.products
+      await this.$http.post(this.$rootUrl + 'get-acquisition', JSON.parse(localStorage.getItem('user')))
+        .then(response => {
+          this.acquisition = response.data.acquisition
+        })
       let sum = 0
-      for (let prod of this.products) sum += prod.itemPrice
+      for (let prod of this.acquisition.products) sum += prod.itemPrice
       this.sum = sum
       console.log(this.products)
     },
@@ -107,27 +115,12 @@ export default {
 </script>
 
 <style scoped>
-  .form-field div{
-    display: inline-block;
-    margin: 3px;
-  }
-  .form-field span {
-    padding: 5px;
-    font-size: 1.3em;
-  }
-  .form-field input {
-    border-radius: 7px;
-    padding: 7px;
-    font-size: 1em;
-  }
-  .table-wrapper {
-    position: relative;
-    top: 23%;
-    left: 23%;
-  }
   .table-wrapper table {
+    margin-left: auto;
+    margin-right: auto;
+    alignment: center;
     border-bottom: #ccc solid 1px;
-    margin-bottom: 10%;
+    margin-bottom: 20px;
     font-size: 1.2em;
   }
   .table-wrapper th {
@@ -139,11 +132,5 @@ export default {
   .row {
     border-bottom: #ccc solid 1px;
     background-color: #CCFFCC;
-  }
-  .btn-success {
-    background-color: #CCFFCC;
-  }
-  .btn-danger {
-    background-color: #FF5C3E;
   }
 </style>

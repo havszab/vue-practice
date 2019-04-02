@@ -2,7 +2,7 @@
 <div>
   <img src="../../static/frog-icon.png" width="150" height="150" alt="">
   <ul class="nav-items">
-    <li>
+    <li href="/list">
       Acquisition
     </li>
     <li>
